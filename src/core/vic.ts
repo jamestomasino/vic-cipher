@@ -16,8 +16,30 @@ function normalizeSong(song: string): string {
   return song.toUpperCase().replace(/[^A-Za-z0-9]/g, "");
 }
 
+function normalizeMessage(message: string): string {
+  return message.toUpperCase().replace(/[^A-Z0-9.]/g, "");
+}
+
 function normalizeCode(code: string): string {
   return code.replace(/[^0-9]/g, "");
+}
+
+function assertStrictEncodeMessage(message: string): void {
+  const normalized = normalizeMessage(message);
+  if (normalized !== message.toUpperCase()) {
+    throw new VicInputError(
+      "strict mode: message normalization would discard characters; allowed characters are A-Z, 0-9, and .",
+    );
+  }
+}
+
+function assertStrictDecodeCode(code: string): void {
+  // Spaces and newlines are allowed formatting. Other non-digits are rejected.
+  if (/[^0-9\s]/.test(code)) {
+    throw new VicInputError(
+      "strict mode: code contains non-digit characters (whitespace is allowed).",
+    );
+  }
 }
 
 function formatFiveGroups(chars: string[]): string {
@@ -122,6 +144,9 @@ export function encodeVic(input: VicEncodeInput): string {
   if (!validation.ok) {
     throw new VicInputError(validation.errors.join(" "));
   }
+  if (input.strict) {
+    assertStrictEncodeMessage(input.message);
+  }
 
   const keys = deriveIntermediateKeys(input.song, input.mi, input.date, input.personalId);
   const checkerboard = buildCheckerboard(keys.c);
@@ -143,6 +168,9 @@ export function decodeVic(input: VicDecodeInput): string {
   const validation = validateDecodeInput(input.song, input.code, input.personalId, input.date);
   if (!validation.ok) {
     throw new VicInputError(validation.errors.join(" "));
+  }
+  if (input.strict) {
+    assertStrictDecodeCode(input.code);
   }
 
   const codeArr = normalizeCode(input.code).split("");

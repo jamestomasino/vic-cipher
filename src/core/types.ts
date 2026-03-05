@@ -6,6 +6,7 @@ export interface VicEncodeInput {
   message: string;
   paddingMultiple?: number;
   random?: () => number;
+  strict?: boolean;
 }
 
 export interface VicDecodeInput {
@@ -13,6 +14,7 @@ export interface VicDecodeInput {
   date: Date;
   personalId: string | number;
   code: string;
+  strict?: boolean;
 }
 
 export interface VicIntermediateKeys {

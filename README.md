@@ -1,31 +1,33 @@
 # vic-cipher
 
-TypeScript VIC-cipher library and CLI for Node.js, with Deno usage via npm compatibility.
+TypeScript VIC-cipher library and CLI for Node.js, with Deno compatibility.
 
 ## Security Notice
 VIC is a historical cipher and is **not secure for modern cryptographic use**.
-This package is for research, education, and interoperability with historical documentation.
+Use this project for historical research, education, and interoperability testing.
 
-## Features
-- VIC encode/decode pipeline implemented in TypeScript
-- Shared core logic (`encodeVic`, `decodeVic`, `deriveIntermediateKeys`)
+## Highlights
+- Shared TypeScript core for encode/decode and intermediate-key derivation
 - Node CLI (`vic encode`, `vic decode`)
-- Public-vector tests based on CIA/Wikipedia documented mechanics
-- Deterministic and stage-level tests to catch symmetric encode/decode bugs
+- Deno-compatible CLI and npm package usage
+- JSON output mode for automation
+- Stdin pipeline mode (`-` placeholders)
+- Optional strict mode to reject lossy normalization
+- Public documentation vectors (CIA/Wikipedia mechanics)
 
 ## Install
 
-### As a CLI (global)
+### CLI
 ```bash
 npm install -g vic-cipher
 ```
 
-### As a library
+### Library
 ```bash
 npm install vic-cipher
 ```
 
-## Quick Start (Node CLI)
+## CLI Usage (Node)
 
 ### Encode
 ```bash
@@ -46,6 +48,34 @@ vic decode \
   --code "60377 31953 34771 79034 11234 57102 6"
 ```
 
+### JSON Mode
+```bash
+vic encode ... --json
+```
+Outputs:
+```json
+{"ok":true,"mode":"encode","result":"..."}
+```
+
+### Strict Mode
+```bash
+vic encode ... --strict
+vic decode ... --strict
+```
+- Encode strict mode rejects message input if normalization would drop characters.
+- Decode strict mode rejects non-digit noise (whitespace formatting is allowed).
+
+### Stdin Pipeline Mode
+Use `-` to read exactly one argument value from stdin:
+```bash
+echo "HELLO123" | vic encode \
+  --song "When I find myself in times of trouble mother mary comes to me" \
+  --mi 12345 \
+  --date 1752-09-03 \
+  --personal-id 7 \
+  --message -
+```
+
 ## Library API
 
 ```ts
@@ -57,6 +87,7 @@ const encoded = encodeVic({
   date: new Date("1752-09-03"),
   personalId: 7,
   message: "Meet at 9. Bring map.",
+  strict: false,
 });
 
 const decoded = decodeVic({
@@ -64,6 +95,7 @@ const decoded = decodeVic({
   date: new Date("1752-09-03"),
   personalId: 7,
   code: encoded,
+  strict: false,
 });
 
 const keys = deriveIntermediateKeys(
@@ -74,42 +106,37 @@ const keys = deriveIntermediateKeys(
 );
 ```
 
-### Input Model
+### Input Rules
 - `song`: at least 20 alphanumeric chars after normalization
 - `mi`: exactly 5 digits (encode)
-- `date`: JavaScript `Date`
-- `personalId`: integer from `0` to `16`
-- `message`: `A-Z`, `0-9`, `.` (after normalization)
-- `code`: digits (non-digits stripped on decode)
+- `date`: valid JavaScript `Date`
+- `personalId`: integer `0..16`
+- `message`: normalized to `A-Z`, `0-9`, `.`
+- `code`: decode strips non-digits unless strict mode rejects invalid noise
 
 ## Deno Usage
-Deno can consume the npm package directly.
 
-### Library usage in Deno
+### Import from npm in Deno
 ```ts
 import { encodeVic } from "npm:vic-cipher";
-
-const code = encodeVic({
-  song: "When I find myself in times of trouble mother mary comes to me",
-  mi: "12345",
-  date: new Date("1752-09-03"),
-  personalId: 7,
-  message: "HELLO123",
-});
-console.log(code);
 ```
 
-### CLI usage in Deno
+### Run CLI through npm package in Deno
 ```bash
 deno run -A npm:vic-cipher encode \
   --song "When I find myself in times of trouble mother mary comes to me" \
   --mi 12345 \
   --date 1752-09-03 \
   --personal-id 7 \
-  --message "HELLO123"
+  --message HELLO123
 ```
 
-## Local Development
+### Native Deno entrypoint (repo usage)
+```bash
+deno task vic encode --song "..." --mi 12345 --date 1752-09-03 --personal-id 7 --message "..."
+```
+
+## Development
 
 ### Setup
 ```bash
@@ -126,38 +153,41 @@ npm run build
 npm test
 ```
 
-## Test Coverage Approach
-- Core transposition inversion tests
+## Testing Strategy
+- Stage tests for arithmetic and transposition primitives
 - End-to-end encode/decode round-trip tests
-- Public rule vectors from historical documentation:
-  - Chain addition
-  - Sequentialization
-  - Modular subtraction without borrowing
-  - Worked key-schedule example
+- Public documented-rule vectors:
+  - chain addition
+  - sequentialization
+  - mod-10 subtraction without borrowing
+  - worked key-schedule values
 
-Vector fixtures live in `test-vectors/`.
+Fixtures live in `test-vectors/`.
 
-## Algorithm Profile and Compatibility
-This project follows a fixed v1 profile and matches documented VIC mechanics with profile-specific choices captured in `docs/spec-v1.md`.
+## Release and Versioning (CalVer)
+This project uses **CalVer**: `YYYY.M.PATCH` (UTC).
+Examples:
+- `2026.3.0`
+- `2026.3.1`
+- `2026.4.0`
 
-Notable profile choices:
-- Date digit derivation from JS `Date` day/month/year string behavior
-- Checkerboard construction constants in the implementation profile
-- MI insertion logic in the implementation profile
+### Bump version
+```bash
+npm run calver:bump
+```
+- Same year/month: increments patch
+- New month: resets patch to `0`
 
-## Publish Checklist (npm)
+## npm Publish Checklist
 1. `npm install`
 2. `npm test`
 3. `npm pack` (inspect package contents)
 4. `npm publish --access public`
 
-## What Is Left for “Fully Featured”
-- Add strict, manually verified CIA Figure 3 golden ciphertext fixture
-- Add JSON I/O mode for CLI (`--json`)
-- Add stdin/stdout pipeline mode for CLI
-- Add optional strict mode that rejects lossy normalization
-- Add CI matrix (Node + Deno runtime checks)
-- Add semver release automation (tags/changelog)
+## CI
+GitHub Actions workflow runs:
+- Node matrix tests (Node 20 and 22)
+- Deno type check and CLI smoke run
 
 ## Sources
 - CIA: Number One From Moscow: https://www.cia.gov/resources/csi/static/Number-One-From-Moscow.pdf

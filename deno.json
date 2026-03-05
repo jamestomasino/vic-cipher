@@ -1,5 +1,6 @@
 {
   "tasks": {
-    "vic": "deno run -A src/cli-deno/mod.ts"
+    "vic": "deno run -A src/cli-deno/mod.ts",
+    "check": "deno check src/cli-deno/mod.ts"
   }
 }

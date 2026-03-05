@@ -1,6 +1,6 @@
 {
   "name": "vic-cipher",
-  "version": "0.1.0",
+  "version": "2026.3.1",
   "license": "MIT",
   "type": "module",
   "author": "jamestomasino",
@@ -39,6 +39,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && node --test test/**/*.test.mjs",
+    "calver:bump": "node scripts/bump-calver.mjs",
+    "calver:print": "node -e \"console.log(require('./package.json').version)\"",
     "prepublishOnly": "npm test"
   },
   "sideEffects": false,
@@ -52,6 +54,7 @@
     "access": "public"
   },
   "devDependencies": {
+    "@types/node": "^25.3.3",
     "typescript": "^5.9.3"
   }
 }

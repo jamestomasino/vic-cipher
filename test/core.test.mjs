@@ -52,3 +52,41 @@ test('intermediate keys are deterministic for fixed inputs', () => {
   assert.equal(keys1.k1.length, keys1.firstTrans);
   assert.equal(keys1.k2.length, keys1.secondTrans);
 });
+
+test('strict mode rejects lossy message normalization on encode', () => {
+  assert.throws(
+    () =>
+      encodeVic({
+        song,
+        mi: '12345',
+        date,
+        personalId: 7,
+        message: 'HELLO WORLD',
+        strict: true,
+      }),
+    /strict mode/i,
+  );
+});
+
+test('strict mode rejects non-digit noise on decode', () => {
+  const encoded = encodeVic({
+    song,
+    mi: '12345',
+    date,
+    personalId: 7,
+    message: 'HELLO123',
+    paddingMultiple: 1,
+  });
+
+  assert.throws(
+    () =>
+      decodeVic({
+        song,
+        date,
+        personalId: 7,
+        code: `${encoded}X`,
+        strict: true,
+      }),
+    /strict mode/i,
+  );
+});
