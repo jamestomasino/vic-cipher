@@ -1,0 +1,44 @@
+{
+  "sources": [
+    "https://www.cia.gov/resources/csi/static/Number-One-From-Moscow.pdf",
+    "https://en.wikipedia.org/wiki/VIC_cipher"
+  ],
+  "vectors": {
+    "chain_addition": {
+      "seed": [3, 9, 6, 4],
+      "length": 14,
+      "expected": [3, 9, 6, 4, 2, 5, 0, 6, 7, 5, 6, 3, 2, 1]
+    },
+    "sequentialization": {
+      "input": [3, 9, 6, 4, 6],
+      "expected": [1, 5, 3, 2, 4]
+    },
+    "cia_keygroup_subtraction_example": {
+      "messageId": [2, 0, 8, 1, 8],
+      "dateFirstFive": [3, 9, 1, 9, 4],
+      "expectedMod10Difference": [9, 1, 7, 2, 4]
+    },
+    "key_schedule_example": {
+      "song": "'Twas the night before Christmas",
+      "mi": "72401",
+      "date": "1959-09-13",
+      "personalId": 6,
+      "expected": {
+        "s1": "8017942653",
+        "s2": "6013589427",
+        "date": "13919",
+        "g": "4966196060",
+        "t": "3288628787",
+        "u": [
+          "5064805552",
+          "5602850077",
+          "1620350748",
+          "7823857125",
+          "5051328370"
+        ],
+        "firstTrans": 13,
+        "secondTrans": 6
+      }
+    }
+  }
+}

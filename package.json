@@ -1,0 +1,57 @@
+{
+  "name": "vic-cipher",
+  "version": "0.1.0",
+  "license": "MIT",
+  "type": "module",
+  "author": "jamestomasino",
+  "description": "VIC cipher utility with shared TypeScript core for Node and Deno",
+  "keywords": [
+    "vic",
+    "cipher",
+    "cryptography",
+    "historical",
+    "typescript",
+    "deno",
+    "node"
+  ],
+  "homepage": "https://github.com/tomasino/vic-cipher",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tomasino/vic-cipher.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tomasino/vic-cipher/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "./dist/src/core/index.js",
+  "types": "./dist/src/core/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/core/index.d.ts",
+      "import": "./dist/src/core/index.js"
+    }
+  },
+  "bin": {
+    "vic": "./dist/src/cli-node/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/**/*.test.mjs",
+    "prepublishOnly": "npm test"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "docs",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
